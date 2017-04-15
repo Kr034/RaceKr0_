@@ -65,24 +65,20 @@ public class Mage implements Listener {
 		if (p.isSneaking() && wmc.getRace(p).equals("mage") && e.hasItem() && isMageBaguette(e.getItem())) {
 			if(e.getAction().toString().contains("LEFT_CLICK") || e.getAction().toString().contains("RIGHT_CLICK")){
 				int Cooldowntime = stormtps;
-				System.out.println("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
 				if(stormc.containsKey(p.getUniqueId())){
 					Long Bug = stormcbug.get(p.getUniqueId());
 					if(System.currentTimeMillis()-Bug<20){
-						System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
 						return;
 					}
 					long secondesleft = ((stormc.get(p.getUniqueId())/1000)+Cooldowntime)-(System.currentTimeMillis()/1000);
-					if(secondesleft< 0){
+					if(secondesleft> 0){
 						stormcbug.put(p.getUniqueId(), System.currentTimeMillis());
 						p.sendMessage(WolvMCAPI.getCooldownMessage((int) secondesleft));
-						System.out.println("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq");
 						return;
 					}
 				}
 				stormc.put(p.getUniqueId(), System.currentTimeMillis());
 				stormcbug.put(p.getUniqueId(), System.currentTimeMillis());
-				System.out.println("rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
 				e.setCancelled(true);
 			}
 			if(e.getAction().toString().contains("LEFT_CLICK")){
