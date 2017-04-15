@@ -11,6 +11,7 @@ public class Main extends JavaPlugin implements Listener {
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		if (Mage.enable) {
 			Bukkit.getServer().getPluginManager().registerEvents(new Mage(), this);
+			Mage.initMage();
 		}
 	}
 
