@@ -46,7 +46,7 @@ public class Mage implements Listener {
 	private static int speedtps = 120;
 	private static HashMap<UUID, Long> feuc = new HashMap<>();
 	private static HashMap<UUID, Long> feubug = new HashMap<>();
-	private static int feutps = 2;
+	private static int feutps = 20;
 
 	@EventHandler
 	public void onEffects(WolvMCInitEffectsEvent e) {
@@ -195,7 +195,7 @@ public class Mage implements Listener {
 			}
 			if (e.getAction().toString().contains("RIGHT_CLICK")) {
 				p.setAllowFlight(false);
-				p.sendMessage(ChatColor.GREEN+"Fly Desastiver");
+				p.sendMessage(ChatColor.GREEN+"Fly Desactiver");
 			}
 		}
 	}
