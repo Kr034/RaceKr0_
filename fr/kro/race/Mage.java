@@ -32,10 +32,12 @@ public class Mage implements Listener {
 	private static String bID = "Mage Baguette";
 	private static String biID = "Mage Baguette Glace";
 	private static String bfID = "Mage Baguette Feu";
+	private static String baID = "Mage Baguette Air";
 	private static int strenght = 3;
 	private static int jump = 4;
 	private static int speed = 4;
 	private static int firer = 2;
+	private static int lev = 2;
 	private static String notMage = ChatColor.DARK_RED + "Tu n'es pas Mage !";
 	private static HashMap<UUID, Long> stormc = new HashMap<>();
 	private static HashMap<UUID, Long> stormcbug = new HashMap<>();
@@ -64,8 +66,8 @@ public class Mage implements Listener {
 	public void onCraftBaguette(CraftItemEvent e) {
 		Player p = (Player) e.getWhoClicked();
 		ItemStack i = e.getRecipe().getResult();
-		if (isMageBaguette(i) || isMageBaguetteGlace(i)
-				|| isMageBaguetteFeu(i) && WolvMC.getRace(p.getName()).equals("mage")) {
+		if (isMageBaguette(i) || isMageBaguetteGlace(i) || isMageBaguetteFeu(i)
+				|| isMageBaguetteAir(i) && WolvMC.getRace(p.getName()).equals("mage")) {
 			WolvMCAPI.addNumberToPlayerMission(p.getName(), "mage.1", (double) 1);
 			return;
 		} else {
@@ -184,6 +186,17 @@ public class Mage implements Listener {
 		}
 	}
 
+	@EventHandler
+	public void onAir(PlayerInteractEvent e) {
+		Player p = e.getPlayer();
+		if (p.isSneaking() && wmc.getRace(p).equals("mage") && e.hasItem() && isMageBaguetteAir(e.getItem())) {
+			if (e.getAction().toString().contains("LEFT_CLICK")) {
+				p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 160, lev - 1));
+				p.sendMessage(ChatColor.GREEN+"Effet de Levitation pendant 15 secondes.");
+			}
+		}
+	}
+
 	public static void initMage() {
 		WolvMC.addMission("mage.3", (double) 50, "mage", "Mettre le beau temps %goal% fois", "Tu à jump 4.");
 		WolvMC.addMission("mage.1", (double) 10, "mage", "Crafter %goal% fois la baguette du mage", "Tu à force 3.");
@@ -210,7 +223,7 @@ public class Mage implements Listener {
 			ItemStack bi = new ItemStack(Material.STICK);
 			ItemMeta biM = bi.getItemMeta();
 
-			biM.setDisplayName(ChatColor.BLUE + "BAGUETTE DU MAGE (GLACE)");
+			biM.setDisplayName(ChatColor.AQUA + "BAGUETTE DU MAGE (GLACE)");
 			biM.addEnchant(Enchantment.LOOT_BONUS_MOBS, 4, true);
 			biM.addEnchant(Enchantment.FROST_WALKER, 2, true);
 			biM.setLore(Arrays.asList(biID));
@@ -225,7 +238,7 @@ public class Mage implements Listener {
 			ItemStack bf = new ItemStack(Material.BLAZE_ROD);
 			ItemMeta bfM = bf.getItemMeta();
 
-			bfM.setDisplayName(ChatColor.BLUE + "BAGUETTE DU MAGE (FEU)");
+			bfM.setDisplayName(ChatColor.RED + "BAGUETTE DU MAGE (FEU)");
 			bfM.addEnchant(Enchantment.LOOT_BONUS_MOBS, 4, true);
 			bfM.addEnchant(Enchantment.FIRE_ASPECT, 4, true);
 			bfM.setLore(Arrays.asList(bfID));
@@ -236,6 +249,21 @@ public class Mage implements Listener {
 			rbf.setIngredient('B', Material.STICK);
 			rbf.setIngredient('M', Material.MAGMA);
 			Bukkit.addRecipe(rbf);
+
+			ItemStack ba = new ItemStack(Material.END_ROD);
+			ItemMeta baM = ba.getItemMeta();
+
+			baM.setDisplayName(ChatColor.WHITE + "BAGUETTE DU MAGE (AIR)");
+			baM.addEnchant(Enchantment.LOOT_BONUS_MOBS, 4, true);
+			baM.addEnchant(Enchantment.KNOCKBACK, 2, true);
+			baM.setLore(Arrays.asList(baID));
+			ba.setItemMeta(baM);
+
+			ShapedRecipe rba = new ShapedRecipe(ba);
+			rba.shape("VVV", "VBV", "VVV");
+			rba.setIngredient('B', Material.STICK);
+			rba.setIngredient('V', Material.GLASS);
+			Bukkit.addRecipe(rba);
 		}
 	}
 
@@ -255,5 +283,11 @@ public class Mage implements Listener {
 		return (f.hasItemMeta() && f.getItemMeta() != null && f.getItemMeta().hasLore()
 				&& f.getItemMeta().getLore() != null && f.getItemMeta().getLore().size() == 1
 				&& f.getItemMeta().getLore().get(0).equals(bfID));
+	}
+
+	private static boolean isMageBaguetteAir(ItemStack a) {
+		return (a.hasItemMeta() && a.getItemMeta() != null && a.getItemMeta().hasLore()
+				&& a.getItemMeta().getLore() != null && a.getItemMeta().getLore().size() == 1
+				&& a.getItemMeta().getLore().get(0).equals(baID));
 	}
 }
