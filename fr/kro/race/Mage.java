@@ -37,7 +37,6 @@ public class Mage implements Listener {
 	private static int jump = 4;
 	private static int speed = 4;
 	private static int firer = 2;
-	private static int lev = 2;
 	private static String notMage = ChatColor.DARK_RED + "Tu n'es pas Mage !";
 	private static HashMap<UUID, Long> stormc = new HashMap<>();
 	private static HashMap<UUID, Long> stormcbug = new HashMap<>();
@@ -191,8 +190,12 @@ public class Mage implements Listener {
 		Player p = e.getPlayer();
 		if (p.isSneaking() && wmc.getRace(p).equals("mage") && e.hasItem() && isMageBaguetteAir(e.getItem())) {
 			if (e.getAction().toString().contains("LEFT_CLICK")) {
-				p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 160, lev - 1));
-				p.sendMessage(ChatColor.GREEN+"Effet de Levitation pendant 15 secondes.");
+				p.setAllowFlight(true);
+				p.sendMessage(ChatColor.GREEN+"Fly Activer");
+			}
+			if (e.getAction().toString().contains("RIGHT_CLICK")) {
+				p.setAllowFlight(false);
+				p.sendMessage(ChatColor.GREEN+"Fly Desastiver");
 			}
 		}
 	}
