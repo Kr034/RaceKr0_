@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
@@ -33,6 +34,7 @@ public class Mage implements Listener {
 	private static String biID = "Mage Baguette Glace";
 	private static String bfID = "Mage Baguette Feu";
 	private static String baID = "Mage Baguette Air";
+	private static String raID = "Radio Mage";
 	private static int strenght = 3;
 	private static int jump = 4;
 	private static int speed = 4;
@@ -65,8 +67,12 @@ public class Mage implements Listener {
 	public void onCraftBaguette(CraftItemEvent e) {
 		Player p = (Player) e.getWhoClicked();
 		ItemStack i = e.getRecipe().getResult();
-		if (isMageBaguette(i) || isMageBaguetteGlace(i) || isMageBaguetteFeu(i)
-				|| isMageBaguetteAir(i) && WolvMC.getRace(p.getName()).equals("mage")) {
+		ItemStack d = e.getRecipe().getResult();
+		ItemStack f = e.getRecipe().getResult();
+		ItemStack a = e.getRecipe().getResult();
+		ItemStack r = e.getRecipe().getResult();
+		if (isMageBaguette(i) || isMageBaguetteGlace(d) || isMageBaguetteFeu(f) || isMageBaguetteAir(a)
+				|| isMageRadio(r) && WolvMC.getRace(p.getName()).equals("mage")) {
 			WolvMCAPI.addNumberToPlayerMission(p.getName(), "mage.1", (double) 1);
 			return;
 		} else {
@@ -191,11 +197,45 @@ public class Mage implements Listener {
 		if (p.isSneaking() && wmc.getRace(p).equals("mage") && e.hasItem() && isMageBaguetteAir(e.getItem())) {
 			if (e.getAction().toString().contains("LEFT_CLICK")) {
 				p.setAllowFlight(true);
-				p.sendMessage(ChatColor.GREEN+"Fly Activer");
+				p.sendMessage(ChatColor.GREEN + "Fly Activer");
 			}
 			if (e.getAction().toString().contains("RIGHT_CLICK")) {
 				p.setAllowFlight(false);
-				p.sendMessage(ChatColor.GREEN+"Fly Desactiver");
+				p.sendMessage(ChatColor.GREEN + "Fly Desactiver");
+			}
+		}
+	}
+
+	@EventHandler
+	public void onRadio(PlayerInteractEvent e) {
+		Player p = e.getPlayer();
+		if (p.isSneaking() && wmc.getRace(p).equals("mage") && e.hasItem() && isMageRadio(e.getItem())) {
+			if (e.getAction().toString().contains("LEFT_CLICK") || e.getAction().toString().contains("RIGHT_CLICK")) {
+				int Cooldowntime = speedtps;
+				if (speedc.containsKey(p.getUniqueId())) {
+					Long Bug = speedbug.get(p.getUniqueId());
+					if (System.currentTimeMillis() - Bug < 20) {
+						return;
+					}
+					long secondesleft = ((speedc.get(p.getUniqueId()) / 1000) + Cooldowntime)
+							- (System.currentTimeMillis() / 1000);
+					if (secondesleft > 0) {
+						speedbug.put(p.getUniqueId(), System.currentTimeMillis());
+						p.sendMessage(WolvMCAPI.getCooldownMessage((int) secondesleft));
+						return;
+					}
+				}
+				speedc.put(p.getUniqueId(), System.currentTimeMillis());
+				speedbug.put(p.getUniqueId(), System.currentTimeMillis());
+				e.setCancelled(true);
+				if (e.getAction().toString().contains("LEFT_CLICK")) {
+					p.playEffect(p.getLocation(), Effect.RECORD_PLAY, Material.RECORD_7);
+					e.setCancelled(true);
+				}
+				if (e.getAction().toString().contains("RIGHT_CLICK")) {
+					p.playEffect(p.getLocation(), Effect.RECORD_PLAY, Material.RECORD_12);
+					e.setCancelled(true);
+				}
 			}
 		}
 	}
@@ -267,6 +307,20 @@ public class Mage implements Listener {
 			rba.setIngredient('B', Material.STICK);
 			rba.setIngredient('V', Material.GLASS);
 			Bukkit.addRecipe(rba);
+
+			ItemStack ra = new ItemStack(Material.JUKEBOX);
+			ItemMeta raM = ra.getItemMeta();
+
+			raM.setDisplayName(ChatColor.WHITE + "RADIO MAGE");
+			raM.setLore(Arrays.asList(raID));
+			ra.setItemMeta(raM);
+
+			ShapedRecipe rac = new ShapedRecipe(ra);
+			rac.shape(" A ", " D ", " B ");
+			rac.setIngredient('A', Material.RECORD_7);
+			rac.setIngredient('B', Material.RECORD_12);
+			rac.setIngredient('D', Material.DIAMOND);
+			Bukkit.addRecipe(rac);
 		}
 	}
 
@@ -292,5 +346,11 @@ public class Mage implements Listener {
 		return (a.hasItemMeta() && a.getItemMeta() != null && a.getItemMeta().hasLore()
 				&& a.getItemMeta().getLore() != null && a.getItemMeta().getLore().size() == 1
 				&& a.getItemMeta().getLore().get(0).equals(baID));
+	}
+
+	private static boolean isMageRadio(ItemStack r) {
+		return (r.hasItemMeta() && r.getItemMeta() != null && r.getItemMeta().hasLore()
+				&& r.getItemMeta().getLore() != null && r.getItemMeta().getLore().size() == 1
+				&& r.getItemMeta().getLore().get(0).equals(raID));
 	}
 }
