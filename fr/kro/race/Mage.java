@@ -49,6 +49,9 @@ public class Mage implements Listener {
 	private static HashMap<UUID, Long> feuc = new HashMap<>();
 	private static HashMap<UUID, Long> feubug = new HashMap<>();
 	private static int feutps = 20;
+	private static HashMap<UUID, Long> musicc = new HashMap<>();
+	private static HashMap<UUID, Long> musicbug = new HashMap<>();
+	private static int musictps = 120;
 
 	@EventHandler
 	public void onEffects(WolvMCInitEffectsEvent e) {
@@ -211,22 +214,22 @@ public class Mage implements Listener {
 		Player p = e.getPlayer();
 		if (p.isSneaking() && wmc.getRace(p).equals("mage") && e.hasItem() && isMageRadio(e.getItem())) {
 			if (e.getAction().toString().contains("LEFT_CLICK") || e.getAction().toString().contains("RIGHT_CLICK")) {
-				int Cooldowntime = speedtps;
-				if (speedc.containsKey(p.getUniqueId())) {
-					Long Bug = speedbug.get(p.getUniqueId());
+				int Cooldowntime = musictps;
+				if (musicc.containsKey(p.getUniqueId())) {
+					Long Bug = musicbug.get(p.getUniqueId());
 					if (System.currentTimeMillis() - Bug < 20) {
 						return;
 					}
-					long secondesleft = ((speedc.get(p.getUniqueId()) / 1000) + Cooldowntime)
+					long secondesleft = ((musicc.get(p.getUniqueId()) / 1000) + Cooldowntime)
 							- (System.currentTimeMillis() / 1000);
 					if (secondesleft > 0) {
-						speedbug.put(p.getUniqueId(), System.currentTimeMillis());
+						musicbug.put(p.getUniqueId(), System.currentTimeMillis());
 						p.sendMessage(WolvMCAPI.getCooldownMessage((int) secondesleft));
 						return;
 					}
 				}
-				speedc.put(p.getUniqueId(), System.currentTimeMillis());
-				speedbug.put(p.getUniqueId(), System.currentTimeMillis());
+				musicc.put(p.getUniqueId(), System.currentTimeMillis());
+				musicbug.put(p.getUniqueId(), System.currentTimeMillis());
 				e.setCancelled(true);
 				if (e.getAction().toString().contains("LEFT_CLICK")) {
 					p.playEffect(p.getLocation(), Effect.RECORD_PLAY, Material.RECORD_7);
