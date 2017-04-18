@@ -43,6 +43,7 @@ public class Mage implements Listener {
 	private static String bfID = "Mage Baguette Feu";
 	private static String baID = "Mage Baguette Air";
 	private static String raID = "Radio Mage";
+	private static String bootID = "Boot Mage Feu";
 	private static int strenght = 3;
 	private static int jump = 4;
 	private static int speed = 4;
@@ -67,7 +68,7 @@ public class Mage implements Listener {
 	private static HashMap<UUID, Long> levc = new HashMap<>();
 	private static HashMap<UUID, Long> levbug = new HashMap<>();
 	private static int levtps = 60;
-	static Integer ejection = 5;
+	static Integer ejection = 10;
 
 	@EventHandler
 	public void onEffects(WolvMCInitEffectsEvent e) {
@@ -102,8 +103,9 @@ public class Mage implements Listener {
 		ItemStack f = e.getRecipe().getResult();
 		ItemStack a = e.getRecipe().getResult();
 		ItemStack r = e.getRecipe().getResult();
+		ItemStack bf = e.getRecipe().getResult();
 		if (isMageBaguette(i) || isMageBaguetteGlace(d) || isMageBaguetteFeu(f) || isMageBaguetteAir(a)
-				|| isMageRadio(r) && WolvMC.getRace(p.getName()).equals("mage")) {
+				|| isMageRadio(r) || isMageBootFeu(bf)&& WolvMC.getRace(p.getName()).equals("mage")) {
 			WolvMCAPI.addNumberToPlayerMission(p.getName(), "mage.1", (double) 1);
 			return;
 		} else {
@@ -465,6 +467,23 @@ public class Mage implements Listener {
 			rac.setIngredient('B', Material.RECORD_12);
 			rac.setIngredient('D', Material.DIAMOND);
 			Bukkit.addRecipe(rac);
+			
+
+			ItemStack boot = new ItemStack(Material.LEATHER_BOOTS);
+			ItemMeta bootM = boot.getItemMeta();
+
+			bootM.setDisplayName(ChatColor.RED + "Boots Mage FEU");
+			bootM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
+			bootM.addEnchant(Enchantment.DEPTH_STRIDER, 3, true);
+			bootM.setUnbreakable(true);
+			bootM.setLore(Arrays.asList(bootID));
+			boot.setItemMeta(bootM);
+
+			ShapedRecipe rboot = new ShapedRecipe(boot);
+			rboot.shape("   ", "ABA", "ABA");
+			rboot.setIngredient('A', Material.DIAMOND);
+			rboot.setIngredient('B', Material.LEATHER);
+			Bukkit.addRecipe(rboot);
 		}
 	}
 
@@ -496,5 +515,10 @@ public class Mage implements Listener {
 		return (r.hasItemMeta() && r.getItemMeta() != null && r.getItemMeta().hasLore()
 				&& r.getItemMeta().getLore() != null && r.getItemMeta().getLore().size() == 1
 				&& r.getItemMeta().getLore().get(0).equals(raID));
+	}
+	private static boolean isMageBootFeu(ItemStack bf) {
+		return (bf.hasItemMeta() && bf.getItemMeta() != null && bf.getItemMeta().hasLore()
+				&& bf.getItemMeta().getLore() != null && bf.getItemMeta().getLore().size() == 1
+				&& bf.getItemMeta().getLore().get(0).equals(bootID));
 	}
 }
