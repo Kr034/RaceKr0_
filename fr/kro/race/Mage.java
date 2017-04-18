@@ -2,17 +2,22 @@ package fr.kro.race;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -20,10 +25,13 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.util.Vector;
 
 import fr.nashoba24.wolvmc.WolvMC;
 import fr.nashoba24.wolvmc.WolvMCAPI;
 import fr.nashoba24.wolvmc.events.WolvMCInitEffectsEvent;
+import fr.nashoba24.wolvmc.utils.TitleAPI;
 
 public class Mage implements Listener {
 
@@ -39,6 +47,7 @@ public class Mage implements Listener {
 	private static int jump = 4;
 	private static int speed = 4;
 	private static int firer = 2;
+	private static int lev = 4;
 	private static String notMage = ChatColor.DARK_RED + "Tu n'es pas Mage !";
 	private static HashMap<UUID, Long> stormc = new HashMap<>();
 	private static HashMap<UUID, Long> stormcbug = new HashMap<>();
@@ -52,6 +61,13 @@ public class Mage implements Listener {
 	private static HashMap<UUID, Long> musicc = new HashMap<>();
 	private static HashMap<UUID, Long> musicbug = new HashMap<>();
 	private static int musictps = 120;
+	private static HashMap<UUID, Long> adieuc = new HashMap<>();
+	private static HashMap<UUID, Long> adieubug = new HashMap<>();
+	private static int adieutps = 180;
+	private static HashMap<UUID, Long> levc = new HashMap<>();
+	private static HashMap<UUID, Long> levbug = new HashMap<>();
+	private static int levtps = 60;
+	static Integer ejection = 5;
 
 	@EventHandler
 	public void onEffects(WolvMCInitEffectsEvent e) {
@@ -62,6 +78,18 @@ public class Mage implements Listener {
 			}
 			if (WolvMC.hasFinishMission("mage.3", p.getName())) {
 				p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 2147483647, jump - 1));
+			}
+		}
+	}
+
+	@EventHandler
+	public void onDamage(EntityDamageEvent e) {
+		if (e.getEntity() instanceof Player) {
+			Player p = (Player) e.getEntity();
+			if (wmc.getRace(p).equals("mage")) {
+				if (e.getCause() == DamageCause.FALL) {
+					e.setCancelled(true);
+				}
 			}
 		}
 	}
@@ -199,12 +227,125 @@ public class Mage implements Listener {
 		Player p = e.getPlayer();
 		if (p.isSneaking() && wmc.getRace(p).equals("mage") && e.hasItem() && isMageBaguetteAir(e.getItem())) {
 			if (e.getAction().toString().contains("LEFT_CLICK")) {
-				p.setAllowFlight(true);
-				p.sendMessage(ChatColor.GREEN + "Fly Activer");
+				int Cooldowntime = levtps;
+				if (levc.containsKey(p.getUniqueId())) {
+					Long Bug = levbug.get(p.getUniqueId());
+					if (System.currentTimeMillis() - Bug < 20) {
+						return;
+					}
+					long secondesleft = ((levc.get(p.getUniqueId()) / 1000) + Cooldowntime)
+							- (System.currentTimeMillis() / 1000);
+					if (secondesleft > 0) {
+						levbug.put(p.getUniqueId(), System.currentTimeMillis());
+						p.sendMessage(WolvMCAPI.getCooldownMessage((int) secondesleft));
+						return;
+					}
+				}
+				levc.put(p.getUniqueId(), System.currentTimeMillis());
+				levbug.put(p.getUniqueId(), System.currentTimeMillis());
+				e.setCancelled(true);
+				p.sendMessage(ChatColor.RED + "Vole pour 30 secondes");
+				p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 600, lev - 1));
+				BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+				scheduler.scheduleSyncDelayedTask(WolvMC.getPlugin(WolvMC.class), new Runnable() {
+					@Override
+					public void run() {
+						p.sendMessage(ChatColor.RED + "Il reste 10 secondes");
+					}
+				}, 300);
+				scheduler.scheduleSyncDelayedTask(WolvMC.getPlugin(WolvMC.class), new Runnable() {
+					@Override
+					public void run() {
+						p.removePotionEffect(PotionEffectType.LEVITATION);
+					}
+				}, 600L);
 			}
 			if (e.getAction().toString().contains("RIGHT_CLICK")) {
-				p.setAllowFlight(false);
-				p.sendMessage(ChatColor.GREEN + "Fly Desactiver");
+				int Cooldowntime = adieutps;
+				if (adieuc.containsKey(p.getUniqueId())) {
+					Long Bug = adieubug.get(p.getUniqueId());
+					if (System.currentTimeMillis() - Bug < 20) {
+						return;
+					}
+					long secondesleft = ((adieuc.get(p.getUniqueId()) / 1000) + Cooldowntime)
+							- (System.currentTimeMillis() / 1000);
+					if (secondesleft > 0) {
+						adieubug.put(p.getUniqueId(), System.currentTimeMillis());
+						p.sendMessage(WolvMCAPI.getCooldownMessage((int) secondesleft));
+						return;
+					}
+				}
+				adieuc.put(p.getUniqueId(), System.currentTimeMillis());
+				adieubug.put(p.getUniqueId(), System.currentTimeMillis());
+				e.setCancelled(true);
+				if (WolvMC.canUsePowerSafe(e.getPlayer().getLocation(), e.getPlayer())) {
+					Vector dir = e.getPlayer().getEyeLocation().getDirection();
+					dir.setY(0);
+					dir = dir.multiply(ejection);
+					final Vector push = dir;
+					List<Entity> list = e.getPlayer().getNearbyEntities(5, 5, 5);
+					BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+					scheduler.scheduleSyncDelayedTask(WolvMC.getPlugin(WolvMC.class), new Runnable() {
+						@Override
+						public void run() {
+							TitleAPI.sendTitle(e.getPlayer(), 1, 9, 0, ChatColor.DARK_BLUE + "Mage", "");
+							e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,
+									1.0F, 1.0F);
+						}
+					}, 10L);
+					scheduler.scheduleSyncDelayedTask(WolvMC.getPlugin(WolvMC.class), new Runnable() {
+						@Override
+						public void run() {
+							TitleAPI.sendTitle(e.getPlayer(), 0, 10, 0, ChatColor.WHITE + "DE L'AIR", "");
+							e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,
+									1.0F, 1.0F);
+						}
+					}, 20L);
+					scheduler.scheduleSyncDelayedTask(WolvMC.getPlugin(WolvMC.class), new Runnable() {
+						@Override
+						public void run() {
+							TitleAPI.sendTitle(e.getPlayer(), 0, 20, 5, ChatColor.GOLD + "ADIEU!", "");
+							e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0F,
+									1.0F);
+						}
+					}, 30L);
+					for (final Entity ent : list) {
+						if (ent instanceof Player) {
+							scheduler.scheduleSyncDelayedTask(WolvMC.getPlugin(WolvMC.class), new Runnable() {
+								@Override
+								public void run() {
+									TitleAPI.sendTitle((Player) ent, 1, 9, 0, ChatColor.DARK_BLUE + "Mage", "");
+									((Player) ent).playSound(ent.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,
+											1.0F, 1.0F);
+								}
+							}, 10L);
+							scheduler.scheduleSyncDelayedTask(WolvMC.getPlugin(WolvMC.class), new Runnable() {
+								@Override
+								public void run() {
+									TitleAPI.sendTitle((Player) ent, 0, 10, 0, ChatColor.DARK_BLUE + "DE L'AIR", "");
+									((Player) ent).playSound(ent.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP,
+											1.0F, 1.0F);
+								}
+							}, 20L);
+							scheduler.scheduleSyncDelayedTask(WolvMC.getPlugin(WolvMC.class), new Runnable() {
+								@Override
+								public void run() {
+									TitleAPI.sendTitle((Player) ent, 0, 20, 5, ChatColor.DARK_BLUE + "ADIEU!", "");
+									ent.setVelocity(push);
+									((Player) ent).playSound(ent.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0F,
+											1.0F);
+								}
+							}, 30L);
+						} else {
+							scheduler.scheduleSyncDelayedTask(WolvMC.getPlugin(WolvMC.class), new Runnable() {
+								@Override
+								public void run() {
+									ent.setVelocity(push);
+								}
+							}, 30L);
+						}
+					}
+				}
 			}
 		}
 	}
