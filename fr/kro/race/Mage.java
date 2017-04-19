@@ -38,14 +38,14 @@ import fr.nashoba24.wolvmc.utils.TitleAPI;
 public class Mage implements Listener {
 
 	public static boolean enable = true;
-	private static WolvMCAPI wmc = new WolvMCAPI();
 	private static boolean baguette = true;
 	private static String bID = "Mage Baguette";
 	private static String biID = "Mage Baguette Glace";
 	private static String bfID = "Mage Baguette Feu";
 	private static String baID = "Mage Baguette Air";
 	private static String raID = "Radio Mage";
-	private static String bootID = "Boot Mage Feu";
+	private static String ArmorFeuID = "Armor Mage Feu";
+	private static String ArmorGlaceID = "Armot Mage Glace";
 	private static int strenght = 3;
 	private static int jump = 4;
 	private static int speed = 4;
@@ -60,7 +60,7 @@ public class Mage implements Listener {
 	private static int speedtps = 120;
 	private static HashMap<UUID, Long> feuc = new HashMap<>();
 	private static HashMap<UUID, Long> feubug = new HashMap<>();
-	private static int feutps = 20;
+	private static int feutps = 60;
 	private static HashMap<UUID, Long> musicc = new HashMap<>();
 	private static HashMap<UUID, Long> musicbug = new HashMap<>();
 	private static int musictps = 120;
@@ -89,7 +89,7 @@ public class Mage implements Listener {
 	public void onDamage(EntityDamageEvent e) {
 		if (e.getEntity() instanceof Player) {
 			Player p = (Player) e.getEntity();
-			if (wmc.getRace(p).equals("mage")) {
+			if (WolvMCAPI.getRace(p).equals("mage")) {
 				if (e.getCause() == DamageCause.FALL) {
 					e.setCancelled(true);
 				}
@@ -106,8 +106,9 @@ public class Mage implements Listener {
 		ItemStack a = e.getRecipe().getResult();
 		ItemStack r = e.getRecipe().getResult();
 		ItemStack bf = e.getRecipe().getResult();
+		ItemStack bg = e.getRecipe().getResult();
 		if (isMageBaguette(i) || isMageBaguetteGlace(d) || isMageBaguetteFeu(f) || isMageBaguetteAir(a)
-				|| isMageRadio(r) || isMageBootFeu(bf)&& WolvMC.getRace(p.getName()).equals("mage")) {
+				|| isMageRadio(r) || isMageArmorFeu(bf) || isMageArmorGlace(bg) && WolvMC.getRace(p.getName()).equals("mage")) {
 			WolvMCAPI.addNumberToPlayerMission(p.getName(), "mage.1", (double) 1);
 			return;
 		} else {
@@ -120,7 +121,7 @@ public class Mage implements Listener {
 	@EventHandler
 	public void onPluie(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
-		if (p.isSneaking() && wmc.getRace(p).equals("mage") && e.hasItem() && isMageBaguette(e.getItem())) {
+		if (p.isSneaking() && WolvMCAPI.getRace(p).equals("mage") && e.hasItem() && isMageBaguette(e.getItem())) {
 			if (e.getAction().toString().contains("LEFT_CLICK") || e.getAction().toString().contains("RIGHT_CLICK")) {
 				int Cooldowntime = stormtps;
 				if (stormc.containsKey(p.getUniqueId())) {
@@ -161,7 +162,7 @@ public class Mage implements Listener {
 	@EventHandler
 	public void onGel(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
-		if (p.isSneaking() && wmc.getRace(p).equals("mage") && e.hasItem() && isMageBaguetteGlace(e.getItem())) {
+		if (p.isSneaking() && WolvMCAPI.getRace(p).equals("mage") && e.hasItem() && isMageBaguetteGlace(e.getItem())) {
 			if (e.getAction().toString().contains("LEFT_CLICK")) {
 				int Cooldowntime = speedtps;
 				if (speedc.containsKey(p.getUniqueId())) {
@@ -193,7 +194,7 @@ public class Mage implements Listener {
 	@EventHandler
 	public void onFeu(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
-		if (p.isSneaking() && wmc.getRace(p).equals("mage") && e.hasItem() && isMageBaguetteFeu(e.getItem())) {
+		if (p.isSneaking() && WolvMCAPI.getRace(p).equals("mage") && e.hasItem() && isMageBaguetteFeu(e.getItem())) {
 			if (e.getAction().toString().contains("RIGHT_CLICK")) {
 				int Cooldowntime = feutps;
 				if (feuc.containsKey(p.getUniqueId())) {
@@ -249,7 +250,7 @@ public class Mage implements Listener {
 	@EventHandler
 	public void onAir(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
-		if (p.isSneaking() && wmc.getRace(p).equals("mage") && e.hasItem() && isMageBaguetteAir(e.getItem())) {
+		if (p.isSneaking() && WolvMCAPI.getRace(p).equals("mage") && e.hasItem() && isMageBaguetteAir(e.getItem())) {
 			if (e.getAction().toString().contains("LEFT_CLICK")) {
 				int Cooldowntime = levtps;
 				if (levc.containsKey(p.getUniqueId())) {
@@ -377,7 +378,7 @@ public class Mage implements Listener {
 	@EventHandler
 	public void onRadio(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
-		if (p.isSneaking() && wmc.getRace(p).equals("mage") && e.hasItem() && isMageRadio(e.getItem())) {
+		if (p.isSneaking() && WolvMCAPI.getRace(p).equals("mage") && e.hasItem() && isMageRadio(e.getItem())) {
 			if (e.getAction().toString().contains("LEFT_CLICK") || e.getAction().toString().contains("RIGHT_CLICK")) {
 				int Cooldowntime = musictps;
 				if (musicc.containsKey(p.getUniqueId())) {
@@ -501,7 +502,7 @@ public class Mage implements Listener {
 			bootM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
 			bootM.addEnchant(Enchantment.DEPTH_STRIDER, 3, true);
 			bootM.setUnbreakable(true);
-			bootM.setLore(Arrays.asList(bootID));
+			bootM.setLore(Arrays.asList(ArmorFeuID));
 			boot.setItemMeta(bootM);
 
 			ShapedRecipe rboot = new ShapedRecipe(boot);
@@ -509,6 +510,143 @@ public class Mage implements Listener {
 			rboot.setIngredient('A', Material.DIAMOND);
 			rboot.setIngredient('C', Material.BLAZE_POWDER);
 			Bukkit.addRecipe(rboot);
+			
+			ItemStack jamb = new ItemStack(Material.LEATHER_LEGGINGS);
+			LeatherArmorMeta meta2 = (LeatherArmorMeta) jamb.getItemMeta();
+			meta2.setColor(Color.RED);
+			jamb.setItemMeta(meta2);
+			ItemMeta jambM = jamb.getItemMeta();
+
+			jambM.setDisplayName(ChatColor.RED + "Jambiere Mage FEU");
+			jambM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
+			jambM.addEnchant(Enchantment.THORNS, 3, true);
+			jambM.setUnbreakable(true);
+			jambM.setLore(Arrays.asList(ArmorFeuID));
+			jamb.setItemMeta(jambM);
+
+			ShapedRecipe rjamb = new ShapedRecipe(jamb);
+			rjamb.shape("AAA", "A A", "C C");
+			rjamb.setIngredient('A', Material.DIAMOND);
+			rjamb.setIngredient('C', Material.BLAZE_POWDER);
+			Bukkit.addRecipe(rjamb);
+			
+			ItemStack plast = new ItemStack(Material.LEATHER_CHESTPLATE);
+			LeatherArmorMeta meta3 = (LeatherArmorMeta) plast.getItemMeta();
+			meta3.setColor(Color.RED);
+			plast.setItemMeta(meta3);
+			ItemMeta plastM = plast.getItemMeta();
+
+			plastM.setDisplayName(ChatColor.RED + "Plastron Mage FEU");
+			plastM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
+			plastM.addEnchant(Enchantment.THORNS, 3, true);
+			plastM.setUnbreakable(true);
+			plastM.setLore(Arrays.asList(ArmorFeuID));
+			plast.setItemMeta(plastM);
+
+			ShapedRecipe rplast = new ShapedRecipe(plast);
+			rplast.shape("ACA", "AAA", "AAA");
+			rplast.setIngredient('A', Material.DIAMOND);
+			rplast.setIngredient('C', Material.BLAZE_POWDER);
+			Bukkit.addRecipe(rplast);
+			
+			ItemStack tete = new ItemStack(Material.LEATHER_HELMET);
+			LeatherArmorMeta meta4 = (LeatherArmorMeta) tete.getItemMeta();
+			meta4.setColor(Color.RED);
+			tete.setItemMeta(meta4);
+			ItemMeta teteM = tete.getItemMeta();
+
+			teteM.setDisplayName(ChatColor.RED + "Casque Mage FEU");
+			teteM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
+			teteM.addEnchant(Enchantment.THORNS, 3, true);
+			teteM.addEnchant(Enchantment.OXYGEN, 3, true);
+			teteM.addEnchant(Enchantment.WATER_WORKER, 2, true);
+			teteM.setUnbreakable(true);
+			teteM.setLore(Arrays.asList(ArmorFeuID));
+			tete.setItemMeta(teteM);
+
+			ShapedRecipe rtete = new ShapedRecipe(tete);
+			rtete.shape("AAA", "C C", "   ");
+			rtete.setIngredient('A', Material.DIAMOND);
+			rtete.setIngredient('C', Material.BLAZE_POWDER);
+			Bukkit.addRecipe(rtete);
+			
+			ItemStack bootg = new ItemStack(Material.LEATHER_BOOTS);
+			LeatherArmorMeta meta5 = (LeatherArmorMeta) bootg.getItemMeta();
+			meta5.setColor(Color.AQUA);
+			bootg.setItemMeta(meta5);
+			ItemMeta bootgM = bootg.getItemMeta();
+
+			bootgM.setDisplayName(ChatColor.AQUA + "Boots Mage Glace");
+			bootgM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
+			bootgM.addEnchant(Enchantment.FROST_WALKER, 2, true);
+			bootgM.setUnbreakable(true);
+			bootgM.setLore(Arrays.asList(ArmorGlaceID));
+			bootg.setItemMeta(bootgM);
+
+			ShapedRecipe rbootg = new ShapedRecipe(bootg);
+			rbootg.shape("A A", "A A", "C C");
+			rbootg.setIngredient('A', Material.DIAMOND);
+			rbootg.setIngredient('C', Material.ICE);
+			Bukkit.addRecipe(rbootg);
+			
+			ItemStack jambg = new ItemStack(Material.LEATHER_LEGGINGS);
+			LeatherArmorMeta meta6 = (LeatherArmorMeta) jambg.getItemMeta();
+			meta6.setColor(Color.AQUA);
+			jambg.setItemMeta(meta6);
+			ItemMeta jambgM = jambg.getItemMeta();
+
+			jambgM.setDisplayName(ChatColor.AQUA + "Jambiere Mage Glace");
+			jambgM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
+			jambgM.addEnchant(Enchantment.THORNS, 3, true);
+			jambgM.setUnbreakable(true);
+			jambgM.setLore(Arrays.asList(ArmorGlaceID));
+			jambg.setItemMeta(jambgM);
+
+			ShapedRecipe rjambg = new ShapedRecipe(jambg);
+			rjambg.shape("AAA", "A A", "C C");
+			rjambg.setIngredient('A', Material.DIAMOND);
+			rjambg.setIngredient('C', Material.ICE);
+			Bukkit.addRecipe(rjambg);
+			
+			ItemStack plastg = new ItemStack(Material.LEATHER_CHESTPLATE);
+			LeatherArmorMeta meta7 = (LeatherArmorMeta) plastg.getItemMeta();
+			meta7.setColor(Color.AQUA);
+			plastg.setItemMeta(meta7);
+			ItemMeta plastgM = plastg.getItemMeta();
+
+			plastgM.setDisplayName(ChatColor.AQUA + "Plastgron Mage Glace");
+			plastgM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
+			plastgM.addEnchant(Enchantment.THORNS, 3, true);
+			plastgM.setUnbreakable(true);
+			plastgM.setLore(Arrays.asList(ArmorGlaceID));
+			plastg.setItemMeta(plastgM);
+
+			ShapedRecipe rplastg = new ShapedRecipe(plastg);
+			rplastg.shape("ACA", "AAA", "AAA");
+			rplastg.setIngredient('A', Material.DIAMOND);
+			rplastg.setIngredient('C', Material.ICE);
+			Bukkit.addRecipe(rplastg);
+			
+			ItemStack teteg = new ItemStack(Material.LEATHER_HELMET);
+			LeatherArmorMeta meta8 = (LeatherArmorMeta) teteg.getItemMeta();
+			meta8.setColor(Color.AQUA);
+			teteg.setItemMeta(meta8);
+			ItemMeta tetegM = teteg.getItemMeta();
+
+			tetegM.setDisplayName(ChatColor.AQUA + "Casque Mage Glace");
+			tetegM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
+			tetegM.addEnchant(Enchantment.THORNS, 3, true);
+			tetegM.addEnchant(Enchantment.OXYGEN, 3, true);
+			tetegM.addEnchant(Enchantment.WATER_WORKER, 2, true);
+			tetegM.setUnbreakable(true);
+			tetegM.setLore(Arrays.asList(ArmorGlaceID));
+			teteg.setItemMeta(tetegM);
+
+			ShapedRecipe rteteg = new ShapedRecipe(teteg);
+			rteteg.shape("AAA", "C C", "   ");
+			rteteg.setIngredient('A', Material.DIAMOND);
+			rteteg.setIngredient('C', Material.ICE);
+			Bukkit.addRecipe(rteteg);
 		}
 	}
 
@@ -541,9 +679,14 @@ public class Mage implements Listener {
 				&& r.getItemMeta().getLore() != null && r.getItemMeta().getLore().size() == 1
 				&& r.getItemMeta().getLore().get(0).equals(raID));
 	}
-	private static boolean isMageBootFeu(ItemStack bf) {
+	private static boolean isMageArmorFeu(ItemStack bf) {
 		return (bf.hasItemMeta() && bf.getItemMeta() != null && bf.getItemMeta().hasLore()
 				&& bf.getItemMeta().getLore() != null && bf.getItemMeta().getLore().size() == 1
-				&& bf.getItemMeta().getLore().get(0).equals(bootID));
+				&& bf.getItemMeta().getLore().get(0).equals(ArmorFeuID));
+	}
+	private static boolean isMageArmorGlace(ItemStack bg) {
+		return (bg.hasItemMeta() && bg.getItemMeta() != null && bg.getItemMeta().hasLore()
+				&& bg.getItemMeta().getLore() != null && bg.getItemMeta().getLore().size() == 1
+				&& bg.getItemMeta().getLore().get(0).equals(ArmorGlaceID));
 	}
 }
