@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -23,6 +24,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -217,6 +219,26 @@ public class Mage implements Listener {
 				return;
 			}
 			if (e.getAction().toString().contains("RIGHT_CLICK")) {
+				BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+				scheduler.scheduleSyncDelayedTask(WolvMC.getPlugin(WolvMC.class), new Runnable() {
+					@Override
+					public void run() {
+						p.getWorld().spawnEntity(p.getLocation(), EntityType.FIREBALL);
+					}
+				}, 10L);
+				scheduler.scheduleSyncDelayedTask(WolvMC.getPlugin(WolvMC.class), new Runnable() {
+					@Override
+					public void run() {
+						p.getWorld().spawnEntity(p.getLocation(), EntityType.FIREBALL);
+					}
+				}, 20L);
+				scheduler.scheduleSyncDelayedTask(WolvMC.getPlugin(WolvMC.class), new Runnable() {
+					@Override
+					public void run() {
+						p.getWorld().spawnEntity(p.getLocation(), EntityType.FIREBALL);
+
+					}
+				}, 30L);
 				p.getWorld().spawnEntity(p.getLocation(), EntityType.FIREBALL);
 				p.sendMessage(ChatColor.GREEN + "Tu a fait spawn une fireball!");
 				return;
@@ -247,7 +269,7 @@ public class Mage implements Listener {
 				levbug.put(p.getUniqueId(), System.currentTimeMillis());
 				e.setCancelled(true);
 				p.sendMessage(ChatColor.RED + "Vole pour 30 secondes");
-				p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 600, lev - 1));
+				p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 2147483647, lev - 1));
 				BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 				scheduler.scheduleSyncDelayedTask(WolvMC.getPlugin(WolvMC.class), new Runnable() {
 					@Override
@@ -470,6 +492,9 @@ public class Mage implements Listener {
 			
 
 			ItemStack boot = new ItemStack(Material.LEATHER_BOOTS);
+			LeatherArmorMeta meta = (LeatherArmorMeta) boot.getItemMeta();
+			meta.setColor(Color.RED);
+			boot.setItemMeta(meta);
 			ItemMeta bootM = boot.getItemMeta();
 
 			bootM.setDisplayName(ChatColor.RED + "Boots Mage FEU");
@@ -480,9 +505,9 @@ public class Mage implements Listener {
 			boot.setItemMeta(bootM);
 
 			ShapedRecipe rboot = new ShapedRecipe(boot);
-			rboot.shape("   ", "ABA", "ABA");
+			rboot.shape("A A", "A A", "C C");
 			rboot.setIngredient('A', Material.DIAMOND);
-			rboot.setIngredient('B', Material.LEATHER);
+			rboot.setIngredient('C', Material.BLAZE_POWDER);
 			Bukkit.addRecipe(rboot);
 		}
 	}
