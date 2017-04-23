@@ -45,7 +45,7 @@ public class Mage implements Listener {
 	private static String baID = "Mage Baguette Air";
 	private static String raID = "Radio Mage";
 	private static String ArmorFeuID = "Armor Mage Feu";
-	private static String ArmorGlaceID = "Armot Mage Glace";
+	private static String ArmorGlaceID = "Armor Mage Glace";
 	private static int strenght = 3;
 	private static int jump = 4;
 	private static int speed = 4;
@@ -108,8 +108,24 @@ public class Mage implements Listener {
 		ItemStack bf = e.getRecipe().getResult();
 		ItemStack bg = e.getRecipe().getResult();
 		if (isMageBaguette(i) || isMageBaguetteGlace(d) || isMageBaguetteFeu(f) || isMageBaguetteAir(a)
-				|| isMageRadio(r) || isMageArmorFeu(bf) || isMageArmorGlace(bg) && WolvMC.getRace(p.getName()).equals("mage")) {
+				|| isMageRadio(r) || isMageArmorFeu(bf)
+				|| isMageArmorGlace(bg) && WolvMC.getRace(p.getName()).equals("mage")) {
 			WolvMCAPI.addNumberToPlayerMission(p.getName(), "mage.1", (double) 1);
+			return;
+		} else {
+			p.sendMessage(notMage);
+			e.setCancelled(true);
+			return;
+		}
+	}
+
+	@EventHandler
+	public void onCraftMage(CraftItemEvent e) {
+		Player p = (Player) e.getWhoClicked();
+		ItemStack bf = e.getRecipe().getResult();
+		ItemStack bg = e.getRecipe().getResult();
+		if (isMageArmorFeu(bf) || isMageArmorGlace(bg) && WolvMC.getRace(p.getName()).equals("mage")) {
+			WolvMCAPI.addNumberToPlayerMission(p.getName(), "mage.4", (double) 1);
 			return;
 		} else {
 			p.sendMessage(notMage);
@@ -311,6 +327,7 @@ public class Mage implements Listener {
 					List<Entity> list = e.getPlayer().getNearbyEntities(5, 5, 5);
 					BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 					scheduler.scheduleSyncDelayedTask(WolvMC.getPlugin(WolvMC.class), new Runnable() {
+
 						@Override
 						public void run() {
 							TitleAPI.sendTitle(e.getPlayer(), 1, 9, 0, ChatColor.DARK_BLUE + "Mage", "");
@@ -371,6 +388,7 @@ public class Mage implements Listener {
 						}
 					}
 				}
+
 			}
 		}
 	}
@@ -414,6 +432,7 @@ public class Mage implements Listener {
 		WolvMC.addMission("mage.1", (double) 10, "mage", "Crafter %goal% fois la baguette du mage", "Tu à force 3.");
 		WolvMC.addMission("mage.2", (double) 50, "mage", "Mettre la pluie %goal% fois",
 				"Tu peut mettre le beau temps.");
+		WolvMC.addMission("mage.4", (double) 1, "mage", "Crafter %goal% fois l'armure du mage de feu", "Tu a les effet de l'armure du mage de feu.");
 		WolvMCAPI.addRace("mage", ChatColor.DARK_BLUE + "Mage", new ItemStack(Material.ENCHANTMENT_TABLE));
 		WolvMC.getPlugin(WolvMC.class).getLogger().fine("Mage Class loaded!");
 
@@ -490,7 +509,6 @@ public class Mage implements Listener {
 			rac.setIngredient('B', Material.RECORD_12);
 			rac.setIngredient('D', Material.DIAMOND);
 			Bukkit.addRecipe(rac);
-			
 
 			ItemStack boot = new ItemStack(Material.LEATHER_BOOTS);
 			LeatherArmorMeta meta = (LeatherArmorMeta) boot.getItemMeta();
@@ -510,7 +528,7 @@ public class Mage implements Listener {
 			rboot.setIngredient('A', Material.DIAMOND);
 			rboot.setIngredient('C', Material.BLAZE_POWDER);
 			Bukkit.addRecipe(rboot);
-			
+
 			ItemStack jamb = new ItemStack(Material.LEATHER_LEGGINGS);
 			LeatherArmorMeta meta2 = (LeatherArmorMeta) jamb.getItemMeta();
 			meta2.setColor(Color.RED);
@@ -529,7 +547,7 @@ public class Mage implements Listener {
 			rjamb.setIngredient('A', Material.DIAMOND);
 			rjamb.setIngredient('C', Material.BLAZE_POWDER);
 			Bukkit.addRecipe(rjamb);
-			
+
 			ItemStack plast = new ItemStack(Material.LEATHER_CHESTPLATE);
 			LeatherArmorMeta meta3 = (LeatherArmorMeta) plast.getItemMeta();
 			meta3.setColor(Color.RED);
@@ -548,7 +566,7 @@ public class Mage implements Listener {
 			rplast.setIngredient('A', Material.DIAMOND);
 			rplast.setIngredient('C', Material.BLAZE_POWDER);
 			Bukkit.addRecipe(rplast);
-			
+
 			ItemStack tete = new ItemStack(Material.LEATHER_HELMET);
 			LeatherArmorMeta meta4 = (LeatherArmorMeta) tete.getItemMeta();
 			meta4.setColor(Color.RED);
@@ -569,7 +587,7 @@ public class Mage implements Listener {
 			rtete.setIngredient('A', Material.DIAMOND);
 			rtete.setIngredient('C', Material.BLAZE_POWDER);
 			Bukkit.addRecipe(rtete);
-			
+
 			ItemStack bootg = new ItemStack(Material.LEATHER_BOOTS);
 			LeatherArmorMeta meta5 = (LeatherArmorMeta) bootg.getItemMeta();
 			meta5.setColor(Color.AQUA);
@@ -588,7 +606,7 @@ public class Mage implements Listener {
 			rbootg.setIngredient('A', Material.DIAMOND);
 			rbootg.setIngredient('C', Material.ICE);
 			Bukkit.addRecipe(rbootg);
-			
+
 			ItemStack jambg = new ItemStack(Material.LEATHER_LEGGINGS);
 			LeatherArmorMeta meta6 = (LeatherArmorMeta) jambg.getItemMeta();
 			meta6.setColor(Color.AQUA);
@@ -607,7 +625,7 @@ public class Mage implements Listener {
 			rjambg.setIngredient('A', Material.DIAMOND);
 			rjambg.setIngredient('C', Material.ICE);
 			Bukkit.addRecipe(rjambg);
-			
+
 			ItemStack plastg = new ItemStack(Material.LEATHER_CHESTPLATE);
 			LeatherArmorMeta meta7 = (LeatherArmorMeta) plastg.getItemMeta();
 			meta7.setColor(Color.AQUA);
@@ -626,7 +644,7 @@ public class Mage implements Listener {
 			rplastg.setIngredient('A', Material.DIAMOND);
 			rplastg.setIngredient('C', Material.ICE);
 			Bukkit.addRecipe(rplastg);
-			
+
 			ItemStack teteg = new ItemStack(Material.LEATHER_HELMET);
 			LeatherArmorMeta meta8 = (LeatherArmorMeta) teteg.getItemMeta();
 			meta8.setColor(Color.AQUA);
@@ -679,11 +697,13 @@ public class Mage implements Listener {
 				&& r.getItemMeta().getLore() != null && r.getItemMeta().getLore().size() == 1
 				&& r.getItemMeta().getLore().get(0).equals(raID));
 	}
+
 	private static boolean isMageArmorFeu(ItemStack bf) {
 		return (bf.hasItemMeta() && bf.getItemMeta() != null && bf.getItemMeta().hasLore()
 				&& bf.getItemMeta().getLore() != null && bf.getItemMeta().getLore().size() == 1
 				&& bf.getItemMeta().getLore().get(0).equals(ArmorFeuID));
 	}
+
 	private static boolean isMageArmorGlace(ItemStack bg) {
 		return (bg.hasItemMeta() && bg.getItemMeta() != null && bg.getItemMeta().hasLore()
 				&& bg.getItemMeta().getLore() != null && bg.getItemMeta().getLore().size() == 1
