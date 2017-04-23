@@ -105,43 +105,22 @@ public class Mage implements Listener {
 		ItemStack f = e.getRecipe().getResult();
 		ItemStack a = e.getRecipe().getResult();
 		ItemStack r = e.getRecipe().getResult();
+		ItemStack bg = e.getRecipe().getResult();
+		ItemStack bf = e.getRecipe().getResult();
 		if (isMageBaguette(i) || isMageBaguetteGlace(d) || isMageBaguetteFeu(f) || isMageBaguetteAir(a)
 				|| isMageRadio(r) && WolvMC.getRace(p.getName()).equals("mage")) {
 			WolvMCAPI.addNumberToPlayerMission(p.getName(), "mage.1", (double) 1);
-			return;
-		} else {
+			if (isMageArmorGlace(bg) && WolvMC.getRace(p.getName()).equals("mage")) {
+				WolvMCAPI.addNumberToPlayerMission(p.getName(), "mage.5", (double) 1);
+				if (isMageArmorFeu(bf) && WolvMC.getRace(p.getName()).equals("mage")) {
+					WolvMCAPI.addNumberToPlayerMission(p.getName(), "mage.4", (double) 1);
+					return;
+				} else {
 			p.sendMessage(notMage);
 			e.setCancelled(true);
 			return;
-		}
-	}
-
-	@EventHandler
-	public void onCraftMageFeu(CraftItemEvent e) {
-		Player p = (Player) e.getWhoClicked();
-		ItemStack bf = e.getRecipe().getResult();
-		ItemStack bg = e.getRecipe().getResult();
-		if (isMageArmorFeu(bf) || isMageArmorGlace(bg) && WolvMC.getRace(p.getName()).equals("mage")) {
-			WolvMCAPI.addNumberToPlayerMission(p.getName(), "mage.4", (double) 1);
-			return;
-		} else {
-			p.sendMessage(notMage);
-			e.setCancelled(true);
-			return;
-		}
-	}
-	
-	@EventHandler
-	public void onCraftMageGlace(CraftItemEvent e) {
-		Player p = (Player) e.getWhoClicked();
-		ItemStack bg = e.getRecipe().getResult();
-		if (isMageArmorGlace(bg) && WolvMC.getRace(p.getName()).equals("mage")) {
-			WolvMCAPI.addNumberToPlayerMission(p.getName(), "mage.5", (double) 1);
-			return;
-		} else {
-			p.sendMessage(notMage);
-			e.setCancelled(true);
-			return;
+				}
+			}
 		}
 	}
 
@@ -443,8 +422,10 @@ public class Mage implements Listener {
 		WolvMC.addMission("mage.1", (double) 10, "mage", "Crafter %goal% fois la baguette du mage", "Tu à force 3.");
 		WolvMC.addMission("mage.2", (double) 50, "mage", "Mettre la pluie %goal% fois",
 				"Tu peut mettre le beau temps.");
-		WolvMC.addMission("mage.4", (double) 1, "mage", "Crafter %goal% fois l'armure du mage de feu", "Tu a les effet de l'armure du mage de feu.");
-		WolvMC.addMission("mage.5", (double) 1, "mage", "Crafter %goal% fois l'armure du mage de glace", "Tu a les effet de l'armure du mage de glace.");
+		WolvMC.addMission("mage.4", (double) 4, "mage", "Crafter %goal% fois l'armure du mage de feu",
+				"Tu a les effet de l'armure du mage de feu.");
+		WolvMC.addMission("mage.5", (double) 4, "mage", "Crafter %goal% fois l'armure du mage de glace",
+				"Tu a les effet de l'armure du mage de glace.");
 		WolvMCAPI.addRace("mage", ChatColor.DARK_BLUE + "Mage", new ItemStack(Material.ENCHANTMENT_TABLE));
 		WolvMC.getPlugin(WolvMC.class).getLogger().fine("Mage Class loaded!");
 
