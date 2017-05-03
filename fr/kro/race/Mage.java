@@ -19,7 +19,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -51,7 +52,6 @@ public class Mage implements Listener {
 	private static int speed = 4;
 	private static int firer = 2;
 	private static int lev = 4;
-	private static String notMage = ChatColor.DARK_RED + "Tu n'es pas Mage !";
 	private static HashMap<UUID, Long> stormc = new HashMap<>();
 	private static HashMap<UUID, Long> stormcbug = new HashMap<>();
 	private static int stormtps = 60;
@@ -76,10 +76,8 @@ public class Mage implements Listener {
 	public void onEffects(WolvMCInitEffectsEvent e) {
 		Player p = e.getPlayer();
 		if (e.getRace().equals("mage")) {
-			if (WolvMC.hasFinishMission("mage.1", p.getName())) {
-				p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 2147483647, strenght - 1));
-			}
-			if (WolvMC.hasFinishMission("mage.3", p.getName())) {
+			p.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 2147483647, strenght - 1));
+			if (WolvMC.hasFinishMission("mage.2", p.getName())) {
 				p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 2147483647, jump - 1));
 			}
 		}
@@ -92,33 +90,6 @@ public class Mage implements Listener {
 			if (WolvMCAPI.getRace(p).equals("mage")) {
 				if (e.getCause() == DamageCause.FALL) {
 					e.setCancelled(true);
-				}
-			}
-		}
-	}
-
-	@EventHandler
-	public void onCraftBaguette(CraftItemEvent e) {
-		Player p = (Player) e.getWhoClicked();
-		ItemStack i = e.getRecipe().getResult();
-		ItemStack d = e.getRecipe().getResult();
-		ItemStack f = e.getRecipe().getResult();
-		ItemStack a = e.getRecipe().getResult();
-		ItemStack r = e.getRecipe().getResult();
-		ItemStack bg = e.getRecipe().getResult();
-		ItemStack bf = e.getRecipe().getResult();
-		if (isMageBaguette(i) || isMageBaguetteGlace(d) || isMageBaguetteFeu(f) || isMageBaguetteAir(a)
-				|| isMageRadio(r) && WolvMC.getRace(p.getName()).equals("mage")) {
-			WolvMCAPI.addNumberToPlayerMission(p.getName(), "mage.1", (double) 1);
-			if (isMageArmorGlace(bg) && WolvMC.getRace(p.getName()).equals("mage")) {
-				WolvMCAPI.addNumberToPlayerMission(p.getName(), "mage.5", (double) 1);
-				if (isMageArmorFeu(bf) && WolvMC.getRace(p.getName()).equals("mage")) {
-					WolvMCAPI.addNumberToPlayerMission(p.getName(), "mage.4", (double) 1);
-					return;
-				} else {
-			p.sendMessage(notMage);
-			e.setCancelled(true);
-			return;
 				}
 			}
 		}
@@ -150,16 +121,16 @@ public class Mage implements Listener {
 			if (e.getAction().toString().contains("LEFT_CLICK")) {
 				p.getWorld().setStorm(true);
 				p.sendMessage(ChatColor.GREEN + "La pluie a été mise.");
-				WolvMCAPI.addNumberToPlayerMission(p, "mage.2", (double) 1);
+				WolvMCAPI.addNumberToPlayerMission(p, "mage.1", (double) 1);
 				return;
 			} else if (e.getAction().toString().contains("RIGHT_CLICK")) {
-				if (!WolvMCAPI.hasFinishMission(p, "mage.2")) {
-					p.sendMessage(ChatColor.DARK_RED + "Tu n'as pas fini la mission 2.");
+				if (!WolvMCAPI.hasFinishMission(p, "mage.1")) {
+					p.sendMessage(ChatColor.DARK_RED + "Tu n'as pas fini la mission 1.");
 					return;
 				}
 				p.getWorld().setStorm(false);
 				p.sendMessage(ChatColor.GREEN + "Le beau temps a été mis.");
-				WolvMCAPI.addNumberToPlayerMission(p, "mage.3", (double) 1);
+				WolvMCAPI.addNumberToPlayerMission(p, "mage.2", (double) 1);
 				return;
 			}
 		}
@@ -194,7 +165,6 @@ public class Mage implements Listener {
 				return;
 			}
 		}
-
 	}
 
 	@EventHandler
@@ -417,15 +387,82 @@ public class Mage implements Listener {
 		}
 	}
 
+	@EventHandler
+	public void onChesplateFeu(InventoryClickEvent e) {
+
+		Player p = (Player) e.getWhoClicked();
+
+		ItemStack plast = new ItemStack(Material.LEATHER_CHESTPLATE);
+		LeatherArmorMeta meta3 = (LeatherArmorMeta) plast.getItemMeta();
+		meta3.setColor(Color.RED);
+		plast.setItemMeta(meta3);
+		ItemMeta plastM = plast.getItemMeta();
+		plastM.setDisplayName(ChatColor.RED + "Plastron Mage FEU");
+		plastM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
+		plastM.addEnchant(Enchantment.THORNS, 3, true);
+		plastM.setUnbreakable(true);
+		plastM.setLore(Arrays.asList(ArmorFeuID));
+		plast.setItemMeta(plastM);
+
+		if (WolvMC.getRace(p.getName()).equals("mage")) {
+			if (e.getSlotType() == SlotType.ARMOR) {
+				if (p.getInventory().getChestplate() == null) {
+						p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 5000000, 1));
+						p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 5000000, 1));
+						p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5000000, 3));
+						p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 5000000, 1));
+						return;
+				} else {
+					p.removePotionEffect(PotionEffectType.NIGHT_VISION);
+					p.removePotionEffect(PotionEffectType.FIRE_RESISTANCE);
+					p.removePotionEffect(PotionEffectType.SPEED);
+					p.removePotionEffect(PotionEffectType.WATER_BREATHING);
+					return;
+				}
+			}
+		}
+	}
+
+	@EventHandler
+	public void onChesplateGlace(InventoryClickEvent e) {
+
+		Player p = (Player) e.getWhoClicked();
+
+		ItemStack plastg = new ItemStack(Material.LEATHER_CHESTPLATE);
+		LeatherArmorMeta meta7 = (LeatherArmorMeta) plastg.getItemMeta();
+		meta7.setColor(Color.AQUA);
+		plastg.setItemMeta(meta7);
+		ItemMeta plastgM = plastg.getItemMeta();
+		plastgM.setDisplayName(ChatColor.AQUA + "Plastron Mage Glace");
+		plastgM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
+		plastgM.addEnchant(Enchantment.THORNS, 3, true);
+		plastgM.setUnbreakable(true);
+		plastgM.setLore(Arrays.asList(ArmorGlaceID));
+		plastg.setItemMeta(plastgM);
+
+		if (WolvMC.getRace(p.getName()).equals("mage")) {
+			if (e.getSlotType() == SlotType.ARMOR) {
+				if (p.getInventory().getChestplate() == null) {
+					p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 5000000, 1));
+					p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 5000000, 1));
+					p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5000000, 3));
+					p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 5000000, 1));
+					return;
+				} else {
+					p.removePotionEffect(PotionEffectType.FIRE_RESISTANCE);
+					p.removePotionEffect(PotionEffectType.NIGHT_VISION);
+					p.removePotionEffect(PotionEffectType.WATER_BREATHING);
+					p.removePotionEffect(PotionEffectType.SPEED);
+					return;
+				}
+			}
+		}
+	}
+
 	public static void initMage() {
-		WolvMC.addMission("mage.3", (double) 50, "mage", "Mettre le beau temps %goal% fois", "Tu à jump 4.");
-		WolvMC.addMission("mage.1", (double) 10, "mage", "Crafter %goal% fois la baguette du mage", "Tu à force 3.");
-		WolvMC.addMission("mage.2", (double) 50, "mage", "Mettre la pluie %goal% fois",
+		WolvMC.addMission("mage.2", (double) 50, "mage", "Mettre le beau temps %goal% fois", "Tu à jump 4.");
+		WolvMC.addMission("mage.1", (double) 50, "mage", "Mettre la pluie %goal% fois",
 				"Tu peut mettre le beau temps.");
-		WolvMC.addMission("mage.4", (double) 4, "mage", "Crafter %goal% fois l'armure du mage de feu",
-				"Tu a les effet de l'armure du mage de feu.");
-		WolvMC.addMission("mage.5", (double) 4, "mage", "Crafter %goal% fois l'armure du mage de glace",
-				"Tu a les effet de l'armure du mage de glace.");
 		WolvMCAPI.addRace("mage", ChatColor.DARK_BLUE + "Mage", new ItemStack(Material.ENCHANTMENT_TABLE));
 		WolvMC.getPlugin(WolvMC.class).getLogger().fine("Mage Class loaded!");
 
@@ -471,7 +508,7 @@ public class Mage implements Listener {
 			ShapedRecipe rbf = new ShapedRecipe(bf);
 			rbf.shape("MMM", "MBM", "MMM");
 			rbf.setIngredient('B', Material.STICK);
-			rbf.setIngredient('M', Material.MAGMA);
+			rbf.setIngredient('M', Material.BLAZE_POWDER);
 			Bukkit.addRecipe(rbf);
 
 			ItemStack ba = new ItemStack(Material.END_ROD);
@@ -503,44 +540,6 @@ public class Mage implements Listener {
 			rac.setIngredient('D', Material.DIAMOND);
 			Bukkit.addRecipe(rac);
 
-			ItemStack boot = new ItemStack(Material.LEATHER_BOOTS);
-			LeatherArmorMeta meta = (LeatherArmorMeta) boot.getItemMeta();
-			meta.setColor(Color.RED);
-			boot.setItemMeta(meta);
-			ItemMeta bootM = boot.getItemMeta();
-
-			bootM.setDisplayName(ChatColor.RED + "Boots Mage FEU");
-			bootM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
-			bootM.addEnchant(Enchantment.DEPTH_STRIDER, 3, true);
-			bootM.setUnbreakable(true);
-			bootM.setLore(Arrays.asList(ArmorFeuID));
-			boot.setItemMeta(bootM);
-
-			ShapedRecipe rboot = new ShapedRecipe(boot);
-			rboot.shape("A A", "A A", "C C");
-			rboot.setIngredient('A', Material.DIAMOND);
-			rboot.setIngredient('C', Material.BLAZE_POWDER);
-			Bukkit.addRecipe(rboot);
-
-			ItemStack jamb = new ItemStack(Material.LEATHER_LEGGINGS);
-			LeatherArmorMeta meta2 = (LeatherArmorMeta) jamb.getItemMeta();
-			meta2.setColor(Color.RED);
-			jamb.setItemMeta(meta2);
-			ItemMeta jambM = jamb.getItemMeta();
-
-			jambM.setDisplayName(ChatColor.RED + "Jambiere Mage FEU");
-			jambM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
-			jambM.addEnchant(Enchantment.THORNS, 3, true);
-			jambM.setUnbreakable(true);
-			jambM.setLore(Arrays.asList(ArmorFeuID));
-			jamb.setItemMeta(jambM);
-
-			ShapedRecipe rjamb = new ShapedRecipe(jamb);
-			rjamb.shape("AAA", "A A", "C C");
-			rjamb.setIngredient('A', Material.DIAMOND);
-			rjamb.setIngredient('C', Material.BLAZE_POWDER);
-			Bukkit.addRecipe(rjamb);
-
 			ItemStack plast = new ItemStack(Material.LEATHER_CHESTPLATE);
 			LeatherArmorMeta meta3 = (LeatherArmorMeta) plast.getItemMeta();
 			meta3.setColor(Color.RED);
@@ -560,72 +559,13 @@ public class Mage implements Listener {
 			rplast.setIngredient('C', Material.BLAZE_POWDER);
 			Bukkit.addRecipe(rplast);
 
-			ItemStack tete = new ItemStack(Material.LEATHER_HELMET);
-			LeatherArmorMeta meta4 = (LeatherArmorMeta) tete.getItemMeta();
-			meta4.setColor(Color.RED);
-			tete.setItemMeta(meta4);
-			ItemMeta teteM = tete.getItemMeta();
-
-			teteM.setDisplayName(ChatColor.RED + "Casque Mage FEU");
-			teteM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
-			teteM.addEnchant(Enchantment.THORNS, 3, true);
-			teteM.addEnchant(Enchantment.OXYGEN, 3, true);
-			teteM.addEnchant(Enchantment.WATER_WORKER, 2, true);
-			teteM.setUnbreakable(true);
-			teteM.setLore(Arrays.asList(ArmorFeuID));
-			tete.setItemMeta(teteM);
-
-			ShapedRecipe rtete = new ShapedRecipe(tete);
-			rtete.shape("AAA", "C C", "   ");
-			rtete.setIngredient('A', Material.DIAMOND);
-			rtete.setIngredient('C', Material.BLAZE_POWDER);
-			Bukkit.addRecipe(rtete);
-
-			ItemStack bootg = new ItemStack(Material.LEATHER_BOOTS);
-			LeatherArmorMeta meta5 = (LeatherArmorMeta) bootg.getItemMeta();
-			meta5.setColor(Color.AQUA);
-			bootg.setItemMeta(meta5);
-			ItemMeta bootgM = bootg.getItemMeta();
-
-			bootgM.setDisplayName(ChatColor.AQUA + "Boots Mage Glace");
-			bootgM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
-			bootgM.addEnchant(Enchantment.FROST_WALKER, 2, true);
-			bootgM.setUnbreakable(true);
-			bootgM.setLore(Arrays.asList(ArmorGlaceID));
-			bootg.setItemMeta(bootgM);
-
-			ShapedRecipe rbootg = new ShapedRecipe(bootg);
-			rbootg.shape("A A", "A A", "C C");
-			rbootg.setIngredient('A', Material.DIAMOND);
-			rbootg.setIngredient('C', Material.ICE);
-			Bukkit.addRecipe(rbootg);
-
-			ItemStack jambg = new ItemStack(Material.LEATHER_LEGGINGS);
-			LeatherArmorMeta meta6 = (LeatherArmorMeta) jambg.getItemMeta();
-			meta6.setColor(Color.AQUA);
-			jambg.setItemMeta(meta6);
-			ItemMeta jambgM = jambg.getItemMeta();
-
-			jambgM.setDisplayName(ChatColor.AQUA + "Jambiere Mage Glace");
-			jambgM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
-			jambgM.addEnchant(Enchantment.THORNS, 3, true);
-			jambgM.setUnbreakable(true);
-			jambgM.setLore(Arrays.asList(ArmorGlaceID));
-			jambg.setItemMeta(jambgM);
-
-			ShapedRecipe rjambg = new ShapedRecipe(jambg);
-			rjambg.shape("AAA", "A A", "C C");
-			rjambg.setIngredient('A', Material.DIAMOND);
-			rjambg.setIngredient('C', Material.ICE);
-			Bukkit.addRecipe(rjambg);
-
 			ItemStack plastg = new ItemStack(Material.LEATHER_CHESTPLATE);
 			LeatherArmorMeta meta7 = (LeatherArmorMeta) plastg.getItemMeta();
 			meta7.setColor(Color.AQUA);
 			plastg.setItemMeta(meta7);
 			ItemMeta plastgM = plastg.getItemMeta();
 
-			plastgM.setDisplayName(ChatColor.AQUA + "Plastgron Mage Glace");
+			plastgM.setDisplayName(ChatColor.AQUA + "Plastron Mage Glace");
 			plastgM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
 			plastgM.addEnchant(Enchantment.THORNS, 3, true);
 			plastgM.setUnbreakable(true);
@@ -637,27 +577,6 @@ public class Mage implements Listener {
 			rplastg.setIngredient('A', Material.DIAMOND);
 			rplastg.setIngredient('C', Material.ICE);
 			Bukkit.addRecipe(rplastg);
-
-			ItemStack teteg = new ItemStack(Material.LEATHER_HELMET);
-			LeatherArmorMeta meta8 = (LeatherArmorMeta) teteg.getItemMeta();
-			meta8.setColor(Color.AQUA);
-			teteg.setItemMeta(meta8);
-			ItemMeta tetegM = teteg.getItemMeta();
-
-			tetegM.setDisplayName(ChatColor.AQUA + "Casque Mage Glace");
-			tetegM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
-			tetegM.addEnchant(Enchantment.THORNS, 3, true);
-			tetegM.addEnchant(Enchantment.OXYGEN, 3, true);
-			tetegM.addEnchant(Enchantment.WATER_WORKER, 2, true);
-			tetegM.setUnbreakable(true);
-			tetegM.setLore(Arrays.asList(ArmorGlaceID));
-			teteg.setItemMeta(tetegM);
-
-			ShapedRecipe rteteg = new ShapedRecipe(teteg);
-			rteteg.shape("AAA", "C C", "   ");
-			rteteg.setIngredient('A', Material.DIAMOND);
-			rteteg.setIngredient('C', Material.ICE);
-			Bukkit.addRecipe(rteteg);
 		}
 	}
 
@@ -691,15 +610,4 @@ public class Mage implements Listener {
 				&& r.getItemMeta().getLore().get(0).equals(raID));
 	}
 
-	private static boolean isMageArmorFeu(ItemStack bf) {
-		return (bf.hasItemMeta() && bf.getItemMeta() != null && bf.getItemMeta().hasLore()
-				&& bf.getItemMeta().getLore() != null && bf.getItemMeta().getLore().size() == 1
-				&& bf.getItemMeta().getLore().get(0).equals(ArmorFeuID));
-	}
-
-	private static boolean isMageArmorGlace(ItemStack bg) {
-		return (bg.hasItemMeta() && bg.getItemMeta() != null && bg.getItemMeta().hasLore()
-				&& bg.getItemMeta().getLore() != null && bg.getItemMeta().getLore().size() == 1
-				&& bg.getItemMeta().getLore().get(0).equals(ArmorGlaceID));
-	}
 }
