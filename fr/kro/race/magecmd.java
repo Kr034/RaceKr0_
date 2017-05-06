@@ -17,7 +17,7 @@ public class magecmd implements CommandExecutor {
 			Integer time = WolvMC.getTime(p.getName());
 
 			if (cmd.getName().equalsIgnoreCase("mage")) {
-				if (time >= 100) {
+				if (time >= 1500) {
 					WolvMC.setRace(p, "mage");
 				}
 			}
