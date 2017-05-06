@@ -9,6 +9,7 @@ public class Main extends JavaPlugin implements Listener {
 
 	@Override
 	public void onEnable() {
+		getCommand("mage").setExecutor(new magecmd());
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 		if (Mage.enable) {
 			Bukkit.getServer().getPluginManager().registerEvents(new Mage(), this);

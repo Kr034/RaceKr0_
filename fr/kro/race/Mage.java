@@ -19,8 +19,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -34,6 +32,7 @@ import org.bukkit.util.Vector;
 import fr.nashoba24.wolvmc.WolvMC;
 import fr.nashoba24.wolvmc.WolvMCAPI;
 import fr.nashoba24.wolvmc.events.WolvMCInitEffectsEvent;
+import fr.nashoba24.wolvmc.utils.ArmorEquipEvent;
 import fr.nashoba24.wolvmc.utils.TitleAPI;
 
 public class Mage implements Listener {
@@ -388,45 +387,9 @@ public class Mage implements Listener {
 	}
 
 	@EventHandler
-	public void onChesplateFeu(InventoryClickEvent e) {
+	public void onArmorFeu(ArmorEquipEvent e) {
 
-		Player p = (Player) e.getWhoClicked();
-
-		ItemStack plast = new ItemStack(Material.LEATHER_CHESTPLATE);
-		LeatherArmorMeta meta3 = (LeatherArmorMeta) plast.getItemMeta();
-		meta3.setColor(Color.RED);
-		plast.setItemMeta(meta3);
-		ItemMeta plastM = plast.getItemMeta();
-		plastM.setDisplayName(ChatColor.RED + "Plastron Mage FEU");
-		plastM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
-		plastM.addEnchant(Enchantment.THORNS, 3, true);
-		plastM.setUnbreakable(true);
-		plastM.setLore(Arrays.asList(ArmorFeuID));
-		plast.setItemMeta(plastM);
-
-		if (WolvMC.getRace(p.getName()).equals("mage")) {
-			if (e.getSlotType() == SlotType.ARMOR) {
-				if (p.getInventory().getChestplate() == null) {
-						p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 5000000, 1));
-						p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 5000000, 1));
-						p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5000000, 3));
-						p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 5000000, 1));
-						return;
-				} else {
-					p.removePotionEffect(PotionEffectType.NIGHT_VISION);
-					p.removePotionEffect(PotionEffectType.FIRE_RESISTANCE);
-					p.removePotionEffect(PotionEffectType.SPEED);
-					p.removePotionEffect(PotionEffectType.WATER_BREATHING);
-					return;
-				}
-			}
-		}
-	}
-
-	@EventHandler
-	public void onChesplateGlace(InventoryClickEvent e) {
-
-		Player p = (Player) e.getWhoClicked();
+		Player p = e.getPlayer();
 
 		ItemStack plastg = new ItemStack(Material.LEATHER_CHESTPLATE);
 		LeatherArmorMeta meta7 = (LeatherArmorMeta) plastg.getItemMeta();
@@ -440,20 +403,26 @@ public class Mage implements Listener {
 		plastgM.setLore(Arrays.asList(ArmorGlaceID));
 		plastg.setItemMeta(plastgM);
 
-		if (WolvMC.getRace(p.getName()).equals("mage")) {
-			if (e.getSlotType() == SlotType.ARMOR) {
-				if (p.getInventory().getChestplate() == null) {
-					p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 5000000, 1));
-					p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 5000000, 1));
-					p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 5000000, 3));
-					p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 5000000, 1));
-					return;
-				} else {
-					p.removePotionEffect(PotionEffectType.FIRE_RESISTANCE);
-					p.removePotionEffect(PotionEffectType.NIGHT_VISION);
-					p.removePotionEffect(PotionEffectType.WATER_BREATHING);
-					p.removePotionEffect(PotionEffectType.SPEED);
-					return;
+		ItemStack plast = new ItemStack(Material.LEATHER_CHESTPLATE);
+		LeatherArmorMeta meta3 = (LeatherArmorMeta) plast.getItemMeta();
+		meta3.setColor(Color.RED);
+		plast.setItemMeta(meta3);
+		ItemMeta plastM = plast.getItemMeta();
+		plastM.setDisplayName(ChatColor.RED + "Plastron Mage FEU");
+		plastM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
+		plastM.addEnchant(Enchantment.THORNS, 3, true);
+		plastM.setUnbreakable(true);
+		plastM.setLore(Arrays.asList(ArmorFeuID));
+		plast.setItemMeta(plastM);
+
+		if (e.getNewArmorPiece() != null) {
+			p.sendMessage("lol");
+			if (e.getNewArmorPiece().getType() == Material.LEATHER_CHESTPLATE) {
+				if (WolvMCAPI.getRace(p).equals("mage")) {
+					p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 100, 1));
+					p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 100, 1));
+					p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100, 3));
+					p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 100, 1));
 				}
 			}
 		}
@@ -608,6 +577,18 @@ public class Mage implements Listener {
 		return (r.hasItemMeta() && r.getItemMeta() != null && r.getItemMeta().hasLore()
 				&& r.getItemMeta().getLore() != null && r.getItemMeta().getLore().size() == 1
 				&& r.getItemMeta().getLore().get(0).equals(raID));
+	}
+
+	private static boolean isArmorFeu(ItemStack c) {
+		return (c.hasItemMeta() && c.getItemMeta() != null && c.getItemMeta().hasLore()
+				&& c.getItemMeta().getLore() != null && c.getItemMeta().getLore().size() == 1
+				&& c.getItemMeta().getLore().get(0).equals(ArmorFeuID));
+	}
+
+	private static boolean isArmorGlace(ItemStack g) {
+		return (g.hasItemMeta() && g.getItemMeta() != null && g.getItemMeta().hasLore()
+				&& g.getItemMeta().getLore() != null && g.getItemMeta().getLore().size() == 1
+				&& g.getItemMeta().getLore().get(0).equals(ArmorFeuID));
 	}
 
 }
