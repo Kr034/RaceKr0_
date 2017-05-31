@@ -15,6 +15,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Stray;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -32,7 +33,6 @@ import org.bukkit.util.Vector;
 import fr.nashoba24.wolvmc.WolvMC;
 import fr.nashoba24.wolvmc.WolvMCAPI;
 import fr.nashoba24.wolvmc.events.WolvMCInitEffectsEvent;
-import fr.nashoba24.wolvmc.utils.ArmorEquipEvent;
 import fr.nashoba24.wolvmc.utils.TitleAPI;
 
 public class Mage implements Listener {
@@ -59,7 +59,7 @@ public class Mage implements Listener {
 	private static int speedtps = 120;
 	private static HashMap<UUID, Long> feuc = new HashMap<>();
 	private static HashMap<UUID, Long> feubug = new HashMap<>();
-	private static int feutps = 60;
+	private static int feutps = 10;
 	private static HashMap<UUID, Long> musicc = new HashMap<>();
 	private static HashMap<UUID, Long> musicbug = new HashMap<>();
 	private static int musictps = 120;
@@ -88,6 +88,9 @@ public class Mage implements Listener {
 			Player p = (Player) e.getEntity();
 			if (WolvMCAPI.getRace(p).equals("mage")) {
 				if (e.getCause() == DamageCause.FALL) {
+					e.setCancelled(true);
+				}
+				if (e.getCause() == DamageCause.PROJECTILE) {
 					e.setCancelled(true);
 				}
 			}
@@ -135,6 +138,7 @@ public class Mage implements Listener {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onGel(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
@@ -161,6 +165,14 @@ public class Mage implements Listener {
 			if (e.getAction().toString().contains("LEFT_CLICK")) {
 				p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 400, speed - 1));
 				p.sendMessage(ChatColor.GREEN + "Speed IV pour 20 secondes!");
+				return;
+			}
+			if (e.getAction().toString().contains("RIGHT_CLICK")) {
+				Stray s = (Stray) p.getWorld().spawnEntity(p.getLocation(), EntityType.STRAY);
+				s.setCustomName("Gardien de " + p.getName());
+				s.setCustomNameVisible(true);
+				s.setMaxHealth(50D);
+				s.setHealth(50D);
 				return;
 			}
 		}
@@ -386,48 +398,6 @@ public class Mage implements Listener {
 		}
 	}
 
-	@EventHandler
-	public void onArmorFeu(ArmorEquipEvent e) {
-
-		Player p = e.getPlayer();
-
-		ItemStack plastg = new ItemStack(Material.LEATHER_CHESTPLATE);
-		LeatherArmorMeta meta7 = (LeatherArmorMeta) plastg.getItemMeta();
-		meta7.setColor(Color.AQUA);
-		plastg.setItemMeta(meta7);
-		ItemMeta plastgM = plastg.getItemMeta();
-		plastgM.setDisplayName(ChatColor.AQUA + "Plastron Mage Glace");
-		plastgM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
-		plastgM.addEnchant(Enchantment.THORNS, 3, true);
-		plastgM.setUnbreakable(true);
-		plastgM.setLore(Arrays.asList(ArmorGlaceID));
-		plastg.setItemMeta(plastgM);
-
-		ItemStack plast = new ItemStack(Material.LEATHER_CHESTPLATE);
-		LeatherArmorMeta meta3 = (LeatherArmorMeta) plast.getItemMeta();
-		meta3.setColor(Color.RED);
-		plast.setItemMeta(meta3);
-		ItemMeta plastM = plast.getItemMeta();
-		plastM.setDisplayName(ChatColor.RED + "Plastron Mage FEU");
-		plastM.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 6, true);
-		plastM.addEnchant(Enchantment.THORNS, 3, true);
-		plastM.setUnbreakable(true);
-		plastM.setLore(Arrays.asList(ArmorFeuID));
-		plast.setItemMeta(plastM);
-
-		if (e.getNewArmorPiece() != null) {
-			p.sendMessage("lol");
-			if (e.getNewArmorPiece().getType() == Material.LEATHER_CHESTPLATE) {
-				if (WolvMCAPI.getRace(p).equals("mage")) {
-					p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 100, 1));
-					p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 100, 1));
-					p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100, 3));
-					p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 100, 1));
-				}
-			}
-		}
-	}
-
 	public static void initMage() {
 		WolvMC.addMission("mage.2", (double) 50, "mage", "Mettre le beau temps %goal% fois", "Tu à jump 4.");
 		WolvMC.addMission("mage.1", (double) 50, "mage", "Mettre la pluie %goal% fois",
@@ -546,6 +516,31 @@ public class Mage implements Listener {
 			rplastg.setIngredient('A', Material.DIAMOND);
 			rplastg.setIngredient('C', Material.ICE);
 			Bukkit.addRecipe(rplastg);
+
+			Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(Main.getPlugin(Main.class), new Runnable() {
+				@Override
+				public void run() {
+					for (Player p : Bukkit.getOnlinePlayers()) {
+						if (WolvMC.getRace(p.getName()).equals("mage")) {
+							if (p.getInventory().getChestplate() != null
+									&& p.getInventory().getChestplate().equals(plastg)
+									|| p.getInventory().getChestplate().equals(plast)) {
+								if (p.hasPotionEffect(PotionEffectType.NIGHT_VISION))
+									p.removePotionEffect(PotionEffectType.NIGHT_VISION);
+								p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 15, 0), true);
+
+								if (p.hasPotionEffect(PotionEffectType.SPEED))
+									p.removePotionEffect(PotionEffectType.SPEED);
+								p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 7, 2), true);
+
+								if (p.hasPotionEffect(PotionEffectType.FIRE_RESISTANCE))
+									p.removePotionEffect(PotionEffectType.FIRE_RESISTANCE);
+								p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * 7, 0), true);
+							}
+						}
+					}
+				}
+			}, 20, 20);
 		}
 	}
 
@@ -578,17 +573,4 @@ public class Mage implements Listener {
 				&& r.getItemMeta().getLore() != null && r.getItemMeta().getLore().size() == 1
 				&& r.getItemMeta().getLore().get(0).equals(raID));
 	}
-
-	private static boolean isArmorFeu(ItemStack c) {
-		return (c.hasItemMeta() && c.getItemMeta() != null && c.getItemMeta().hasLore()
-				&& c.getItemMeta().getLore() != null && c.getItemMeta().getLore().size() == 1
-				&& c.getItemMeta().getLore().get(0).equals(ArmorFeuID));
-	}
-
-	private static boolean isArmorGlace(ItemStack g) {
-		return (g.hasItemMeta() && g.getItemMeta() != null && g.getItemMeta().hasLore()
-				&& g.getItemMeta().getLore() != null && g.getItemMeta().getLore().size() == 1
-				&& g.getItemMeta().getLore().get(0).equals(ArmorFeuID));
-	}
-
 }

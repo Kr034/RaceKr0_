@@ -1,5 +1,6 @@
 package fr.kro.race;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -19,6 +20,8 @@ public class magecmd implements CommandExecutor {
 			if (cmd.getName().equalsIgnoreCase("mage")) {
 				if (time >= 1500) {
 					WolvMC.setRace(p, "mage");
+					p.sendMessage("[" + ChatColor.DARK_BLUE + "Mage" + "§r]" + ChatColor.GRAY + p + ChatColor.YELLOW
+							+ "Viens de devenir Mage !");
 				}
 			}
 		}
